@@ -1,5 +1,6 @@
 import { db } from "../database/database.connection.js";
 import bcrypt from "bcrypt";
+import { v4 as uuid } from "uuid"
 
 export async function createUser(req, res){
     const { name, email, password, confirmPassword } = req.body;
@@ -32,11 +33,15 @@ export async function signIn(req, res) {
     const { email, password } = req.body
 
     try {
+        const user = await db.query("SELECT * FROM users WHERE email=$1", [email]);
 
-        const token = uuid()
-        await db.collection("sessions").insertOne({ token, userId: user._id })
-        res.send({ token, userName: user.name })
-    } catch (err) {
-        res.status(500).send(err.message)
+        const token = uuid();
+        await db.query(`
+            INSERT INTO sessions ( token, "idUser") 
+                VALUES ($1, $2)
+        `, [token, user.rows[0].id]);
+        res.sendStatus(200);
+    }catch(err){
+        res.status(500).send(err.message);
     }
 }
