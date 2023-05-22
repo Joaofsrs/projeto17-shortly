@@ -43,7 +43,7 @@ export async function signIn(req, res) {
                 VALUES ($1, $2);
         `, [token, user.rows[0].id]);
         
-        res.sendStatus({ token: token });
+        res.send({ token: token });
     }catch(err){
         res.status(500).send(err.message);
     }
