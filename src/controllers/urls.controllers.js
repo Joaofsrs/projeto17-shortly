@@ -17,7 +17,7 @@ export async function createUrlShorten(req, res){
         `, [token]);
 
         if(session.rowCount === 0){
-            if (!token) return res.sendStatus(401);
+            return res.sendStatus(401);
         }
 
         await db.query(`
@@ -35,6 +35,30 @@ export async function createUrlShorten(req, res){
         }
 
         res.status(201).send(returnObject);
+    }catch(err){
+        res.status(500).send(err.message);
+    }
+}
+
+export async function getUrlById(req, res){
+    const { id } = req.params;
+
+    try{
+        const shorten = await db.query(`
+            SELECT * FROM shorten WHERE id=$1
+        `, [id]);
+
+        if(shorten.rowCount === 0){
+            return res.sendStatus(404);
+        }
+
+        const returnObject = {
+            id: shorten.rows[0].id,
+            shortUrl: shorten.rows[0].shortUrl,
+            url: shorten.rows[0].url
+        };
+        
+        res.status(200).send(returnObject);
     }catch(err){
         res.status(500).send(err.message);
     }
