@@ -27,7 +27,8 @@ SET default_table_access_method = heap;
 CREATE TABLE public.sessions (
     id integer NOT NULL,
     token character varying(100) NOT NULL,
-    "idUser" integer
+    "idUser" integer,
+    "createdAt" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -60,7 +61,8 @@ CREATE TABLE public.shorten (
     url text NOT NULL,
     "shortUrl" text NOT NULL,
     "visitCount" integer DEFAULT 0,
-    "idUser" integer
+    "idUser" integer,
+    "createdAt" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -92,7 +94,8 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying(100) NOT NULL,
     email character varying(100) NOT NULL,
-    password text NOT NULL
+    password text NOT NULL,
+    "createdAt" timestamp without time zone DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -153,7 +156,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-INSERT INTO public.users VALUES (1, 'ze', 'joaoo@driven.com.br', 'driven');
+INSERT INTO public.users VALUES (1, 'ze', 'joaoo@driven.com.br', 'driven', '2023-05-22 12:16:44.139694');
 
 
 --
