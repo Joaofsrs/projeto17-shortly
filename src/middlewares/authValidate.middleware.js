@@ -45,11 +45,3 @@ export async function signInValidate(req, res, next){
         res.status(500).send(err.message);
     }
 }
-
-export async function authorizationValidate(req, res, next){
-    const { authorization } = req.headers
-    const token = authorization?.replace("Bearer ", "")
-    if (!token) return res.sendStatus(401)
-     
-    next();
-}
