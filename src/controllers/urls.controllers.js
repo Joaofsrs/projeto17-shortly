@@ -90,3 +90,40 @@ export async function getShortUrl(req, res){
         res.status(500).send(err.message);
     }
 }
+
+export async function deleteUrls(req, res){
+    const { id } = req.params;
+    const { authorization } = req.headers;
+    const token = authorization?.replace("Bearer ", "");
+    if (!token) return res.sendStatus(401);
+
+    try{
+        const session = await db.query(`
+            SELECT * FROM sessions WHERE token=$1;
+        `, [token]);
+
+        if(session.rowCount === 0){
+            return res.sendStatus(401);
+        }
+
+        const shorten = await db.query(`
+            SELECT * FROM shorten WHERE id=$1;
+        `, [id]);
+
+        if(shorten.rowCount === 0){
+            return res.sendStatus(404)
+        }
+
+        if(session.rows[0].idUser !== shorten.rows[0].idUser){
+            return res.sendStatus(401);
+        }
+
+        await db.query(`
+            DELETE FROM shorten WHERE id=$1;
+        `, [id]);
+
+        res.sendStatus(204);
+    }catch(err){
+        res.status(500).send(err.message);
+    }
+}
