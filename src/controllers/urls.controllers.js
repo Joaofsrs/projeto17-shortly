@@ -168,14 +168,17 @@ export async function getUserMe(req, res) {
 
 export async function getRanking(req, res){
     try {
-        const numsei2 = await db.query(` 
-            SELECT *
-            FROM shorten
+        const users = await db.query(` 
+            SELECT users.id, users.name, COUNT(shorten."url") AS "linksCount", SUM(shorten."visitCount") AS "visitCount"
+            FROM users
+            LEFT JOIN shorten
+            ON users.id = shorten."idUser"
+            GROUP BY users.id
             ORDER BY "visitCount" DESC
             LIMIT 10;
         `);
 
-        res.send(numsei2.rows);
+        res.send(users.rows);
     }catch(err){
         res.status(500).send(err.message);
     }
