@@ -13,7 +13,7 @@ export async function createUrlShorten(req, res){
         const shortUrl = nanoid(8);
 
         const session = await db.query(`
-            SELECT * FROM sessions WHERE token=$1
+            SELECT * FROM sessions WHERE token=$1;
         `, [token]);
 
         if(session.rowCount === 0){
@@ -26,7 +26,7 @@ export async function createUrlShorten(req, res){
         `, [url, shortUrl, 0, session.rows[0].idUser]);
 
         const shorten = await db.query(`
-            SELECT * FROM shorten WHERE "shortUrl"=$1
+            SELECT * FROM shorten WHERE "shortUrl"=$1;
         `, [shortUrl]);
 
         const returnObject = {
@@ -45,7 +45,7 @@ export async function getUrlById(req, res){
 
     try{
         const shorten = await db.query(`
-            SELECT * FROM shorten WHERE id=$1
+            SELECT * FROM shorten WHERE id=$1;
         `, [id]);
 
         if(shorten.rowCount === 0){
@@ -57,8 +57,35 @@ export async function getUrlById(req, res){
             shortUrl: shorten.rows[0].shortUrl,
             url: shorten.rows[0].url
         };
-        
+
         res.status(200).send(returnObject);
+    }catch(err){
+        res.status(500).send(err.message);
+    }
+}
+
+export async function getShortUrl(req, res){
+    const { shortUrl } = req.params;
+
+    try{
+        const shorten = await db.query(`
+            SELECT * FROM shorten WHERE "shortUrl"=$1;
+        `, [shortUrl]);
+
+        if(shorten.rowCount === 0){
+            return res.sendStatus(404);
+        }
+
+        const newVisitCount = shorten.rows[0].visitCount + 1;
+        await db.query(`
+            UPDATE shorten
+            SET "visitCount"=$1
+            WHERE "shortUrl"=$2;
+        `, [newVisitCount, shortUrl]);
+
+        const url = shorten.rows[0].url;
+
+        res.redirect(url);
     }catch(err){
         res.status(500).send(err.message);
     }

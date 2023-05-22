@@ -21,7 +21,7 @@ export async function createUser(req, res){
 export async function getUser(req, res){
     try{
         const users = await db.query(`
-            SELECT * FROM users
+            SELECT * FROM users;
         `);
         res.send(users);
     }catch(err){
@@ -33,12 +33,14 @@ export async function signIn(req, res) {
     const { email, password } = req.body
 
     try {
-        const user = await db.query("SELECT * FROM users WHERE email=$1", [email]);
+        const user = await db.query(`
+            SELECT * FROM users WHERE email=$1;
+        `, [email]);
 
         const token = uuid();
         await db.query(`
             INSERT INTO sessions ( token, "idUser") 
-                VALUES ($1, $2)
+                VALUES ($1, $2);
         `, [token, user.rows[0].id]);
         res.sendStatus(200);
     }catch(err){
